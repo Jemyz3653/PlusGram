@@ -2856,6 +2856,13 @@ public class LocaleController {
     }
 
     public static String formatShortNumber(int number, int[] rounded) {
+        // PlusGram: exteraGram "don't round numbers"
+        if (com.plusgram.messenger.extera.ExteraConfig.disableNumberRounding) {
+            if (rounded != null) {
+                rounded[0] = number;
+            }
+            return String.format(Locale.US, "%,d", number).replace(',', ' ');
+        }
         StringBuilder K = new StringBuilder();
         int lastDec = 0;
         int KCount = 0;

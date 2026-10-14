@@ -318,6 +318,11 @@ public class FileUploadOperation {
                     uploadChunkSize = chunkSize;
                 }
                 maxRequestsCount = Math.max(1, (slowNetwork ? maxUploadingSlowNetworkKBytes : maxUploadingKBytes) / uploadChunkSize);
+                // PlusGram: exteraGram upload boost - biggest allowed part (512 KB) and twice the requests in flight
+                if (com.plusgram.messenger.extera.ExteraConfig.uploadSpeedBoost && !slowNetwork) {
+                    uploadChunkSize = Math.max(uploadChunkSize, 512);
+                    maxRequestsCount = Math.max(1, (maxUploadingKBytes * 2) / uploadChunkSize);
+                }
 
                 if (isEncrypted) {
                     freeRequestIvs = new ArrayList<>(maxRequestsCount);

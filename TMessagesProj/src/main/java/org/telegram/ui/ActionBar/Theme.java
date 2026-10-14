@@ -1792,6 +1792,31 @@ public class Theme {
             accentBaseColor = themeAccentsMap.get(0).accentColor;
         }
 
+        // PlusGram: built-in mint accent, selected by default for the base themes
+        private void addPlusMintAccent(int accent, int myMessages, int myMessagesGradient, int background, int backgroundGradient1, int backgroundGradient2, int backgroundGradient3, String patternSlug, int patternRotation, float patternIntensity) {
+            if (themeAccents == null || themeAccentsMap == null || themeAccentsMap.get(PLUS_MINT_ACCENT_ID) != null) {
+                return;
+            }
+            ThemeAccent themeAccent = new ThemeAccent();
+            themeAccent.id = PLUS_MINT_ACCENT_ID;
+            themeAccent.isDefault = true;
+            themeAccent.parentTheme = this;
+            themeAccent.accentColor = accent;
+            themeAccent.myMessagesAccentColor = myMessages;
+            themeAccent.myMessagesGradientAccentColor1 = myMessagesGradient;
+            themeAccent.backgroundOverrideColor = background;
+            themeAccent.backgroundGradientOverrideColor1 = backgroundGradient1;
+            themeAccent.backgroundGradientOverrideColor2 = backgroundGradient2;
+            themeAccent.backgroundGradientOverrideColor3 = backgroundGradient3;
+            themeAccent.patternSlug = patternSlug;
+            themeAccent.backgroundRotation = patternRotation;
+            themeAccent.patternIntensity = patternIntensity;
+            themeAccentsMap.put(themeAccent.id, themeAccent);
+            themeAccents.add(themeAccent);
+            defaultAccentCount++;
+            currentAccentId = PLUS_MINT_ACCENT_ID;
+        }
+
         @UiThread
         private void loadThemeDocument() {
             loaded = false;
@@ -2196,6 +2221,8 @@ public class Theme {
     };
 
     public static int DEFALT_THEME_ACCENT_ID = 99;
+    // PlusGram: id of the built-in mint accent (custom accents start at 100)
+    public static final int PLUS_MINT_ACCENT_ID = 20;
     public static int selectedAutoNightType = AUTO_NIGHT_TYPE_NONE;
     public static boolean autoNightScheduleByLocation;
     public static float autoNightBrighnessThreshold = 0.25f;
@@ -3917,6 +3944,8 @@ public class Theme {
                 new int[]    {          0,                             52,                            46,                            57,                            45,                            64,                            52,                            35,                            36,                            41,                            50,                            50,                            35,                            38,                            37,                            30 }
                 );
         sortAccents(themeInfo);
+        themeInfo.addPlusMintAccent(0xFF2EAF84, 0xFFD3F5E3, 0xFFC0EED6, 0xFFCDEBD8, 0xFFA8DCC3, 0xFFDCEFC7, 0xFFB5E2D4, "fqv01SQemVIBAAAApND8LDRUhRU", 0, 0.40f);
+        sortAccents(themeInfo);
         themes.add(currentDayTheme = defaultTheme = themeInfo);
         themesDict.put("Blue", themeInfo);
 
@@ -3940,6 +3969,8 @@ public class Theme {
                 new int[]    {                           225,                            45,                           225,                           135,                            45,                           225,                            45,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0 },
                 new int[]    {                            40,                            40,                            31,                            50,                            25,                            34,                            35,                            35,                            38,                            29,                            24,                            34,                            34,                            31,                            29,                            37,                            21,                            38 }
                 );
+        sortAccents(themeInfo);
+        themeInfo.addPlusMintAccent(0xFF4FD1A5, 0xFF2E7D63, 0xFF3A8F72, 0xFF0E1A16, 0xFF13231D, 0xFF0C1714, 0xFF10201A, "fqv01SQemVIBAAAApND8LDRUhRU", 45, 0.35f);
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Dark Blue", currentNightTheme = themeInfo);
@@ -3965,6 +3996,8 @@ public class Theme {
                 new int[]    {                            50,                            50,                            58,                            47,                            46,                            50,                            49,                            46,                            51,                            50,                            49,                            34,                            54,                            50,                            40 }
                 );
         sortAccents(themeInfo);
+        themeInfo.addPlusMintAccent(0xFF2EAF84, 0xFF2EAF84, 0xFF4CC69B, 0xFFE3F3EC, 0xFFCDEBDD, 0xFFE9F6EE, 0xFFD3EEE3, "fqv01SQemVIBAAAApND8LDRUhRU", 0, 0.45f);
+        sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Arctic Blue", themeInfo);
 
@@ -3989,6 +4022,8 @@ public class Theme {
                 new int[]    {          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0,          0 }
                 );
         sortAccents(themeInfo);
+        themeInfo.addPlusMintAccent(0xFF2EAF84, 0xFF2EAF84, 0xFF4CC69B, 0, 0, 0, 0, "", 0, 0);
+        sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Day", themeInfo);
 
@@ -4012,6 +4047,8 @@ public class Theme {
                 new int[]    {                            45,                           135,                             0,                           180,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0,                             0 },
                 new int[]    {                            34,                            47,                            52,                            48,                            54,                            50,                            37,                            56,                            48,                            49,                            40,                            64,                            38,                            48 }
                 );
+        sortAccents(themeInfo);
+        themeInfo.addPlusMintAccent(0xFF4FD1A5, 0xFF2A7A5F, 0xFF35957A, 0xFF0B1411, 0xFF0F1B17, 0xFF09110E, 0xFF0D1814, "fqv01SQemVIBAAAApND8LDRUhRU", 0, 0.35f);
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Night", themeInfo);
@@ -4107,7 +4144,7 @@ public class Theme {
             for (ThemeInfo info : themesDict.values()) {
                 if (info.assetName != null && info.accentBaseColor != 0) {
                     String accents = themeConfig.getString("accents_" + info.assetName, null);
-                    info.currentAccentId = themeConfig.getInt("accent_current_" + info.assetName, info.firstAccentIsDefault ? DEFALT_THEME_ACCENT_ID : 0);
+                    info.currentAccentId = themeConfig.getInt("accent_current_" + info.assetName, info.themeAccentsMap != null && info.themeAccentsMap.get(PLUS_MINT_ACCENT_ID) != null ? PLUS_MINT_ACCENT_ID : (info.firstAccentIsDefault ? DEFALT_THEME_ACCENT_ID : 0));
                     ArrayList<ThemeAccent> newAccents = new ArrayList<>();
                     if (!TextUtils.isEmpty(accents)) {
                         try {
@@ -4241,7 +4278,7 @@ public class Theme {
                         sortAccents(info);
                     }
                     if (info.themeAccentsMap != null && info.themeAccentsMap.get(info.currentAccentId) == null) {
-                        info.currentAccentId = info.firstAccentIsDefault ? DEFALT_THEME_ACCENT_ID : 0;
+                        info.currentAccentId = info.themeAccentsMap.get(PLUS_MINT_ACCENT_ID) != null ? PLUS_MINT_ACCENT_ID : (info.firstAccentIsDefault ? DEFALT_THEME_ACCENT_ID : 0);
                     }
                     info.loadWallpapers(themeConfig);
                     ThemeAccent accent = info.getAccent(false);
@@ -4326,6 +4363,12 @@ public class Theme {
 
     private static void sortAccents(ThemeInfo info) {
         Collections.sort(info.themeAccents, (o1, o2) -> {
+            if (o1.id == PLUS_MINT_ACCENT_ID || o2.id == PLUS_MINT_ACCENT_ID) {
+                if (o1.id == o2.id) {
+                    return 0;
+                }
+                return o1.id == PLUS_MINT_ACCENT_ID ? -1 : 1;
+            }
             if (isHome(o1)) {
                 return -1;
             }

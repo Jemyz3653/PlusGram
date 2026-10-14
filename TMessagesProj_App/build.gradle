@@ -55,10 +55,19 @@ android {
         }
 
         release {
-            storeFile file("../TMessagesProj/config/release.keystore")
-            storePassword RELEASE_STORE_PASSWORD
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWORD
+            // PlusGram: own keystore via env (CI secrets), fallback to the public test keystore
+            def plusStore = System.getenv("PLUS_KEYSTORE_FILE")
+            if (plusStore != null && file(plusStore).exists()) {
+                storeFile file(plusStore)
+                storePassword System.getenv("PLUS_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("PLUS_KEY_ALIAS")
+                keyPassword System.getenv("PLUS_KEY_PASSWORD")
+            } else {
+                storeFile file("../TMessagesProj/config/release.keystore")
+                storePassword RELEASE_STORE_PASSWORD
+                keyAlias RELEASE_KEY_ALIAS
+                keyPassword RELEASE_KEY_PASSWORD
+            }
         }
     }
 
@@ -153,7 +162,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = "app.apk"
+            outputFileName = "PlusGram-" + PLUS_VERSION_NAME + "-" + variant.buildType.name + ".apk"
             output.versionCodeOverride = defaultConfig.versionCode * 10 + variant.productFlavors.get(0).abiVersionCode
         }
     }

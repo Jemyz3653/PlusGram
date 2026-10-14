@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PlusGram: status bar icon, chat bubble with a plus -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M38,22H70A18,18 0,0 1,88 40V60A18,18 0,0 1,70 78H46L26,90L30,75A18,18 0,0 1,20 60V40A18,18 0,0 1,38 22ZM50,35V46H39V54H50V65H58V54H69V46H58V35Z" />
+</vector>

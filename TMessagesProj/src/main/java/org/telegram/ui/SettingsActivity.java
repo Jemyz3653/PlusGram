@@ -501,6 +501,13 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        // PlusGram: reflect "hide my phone number" right after returning from settings
+        setInfo();
+    }
+
+    @Override
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
 
@@ -537,12 +544,16 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         avatarView.setForUserOrChat(user, avatarDrawable);
         titleView.setText(UserObject.getUserName(user));
         final StringBuilder sb = new StringBuilder();
-        if (user != null) {
+        // PlusGram: exteraGram "hide my phone number"
+        if (user != null && !com.plusgram.messenger.extera.ExteraConfig.hidePhoneNumber) {
             sb.append(PhoneFormat.getInstance().format("+" + user.phone));
         }
         final String username = UserObject.getPublicUsername(user);
         if (username != null) {
-            sb.append(" • @").append(username);
+            if (sb.length() > 0) {
+                sb.append(" • ");
+            }
+            sb.append("@").append(username);
         }
         subtitleView.setText(sb);
 
@@ -614,6 +625,11 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             actionBarVisibleAnimator.start();
         }
     }
+
+    // PlusGram settings sections
+    private static final int PLUS_ID_EXTERA = 901;
+    private static final int PLUS_ID_AYU = 902;
+    private static final int PLUS_ID_PLUS = 903;
 
     private ArrayList<Integer> accountNumbers = new ArrayList<>();
     private void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
@@ -696,6 +712,12 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             items.add(SettingCell.Factory.of(25, 0, 0, Theme.isCurrentThemeDark() ? R.drawable.settings_wallet_dark : R.drawable.settings_wallet, TextCell.applyNewSpanTimed(getString(R.string.WalletAttachMoney), 1790679020), null, wallet.getBalance() > 0 ? GramWallet.formatGrams(wallet.getBalance()) : null));
             items.add(UItem.asShadow(null));
         }
+
+        // PlusGram: client sections in the order exteraGram -> AyuGram -> PlusGram
+        items.add(SettingCell.Factory.of(PLUS_ID_EXTERA, 0xFFFF7A59, 0xFFE8504A, R.drawable.plus_settings_extera, getString(R.string.PlusSettingsExtera), getString(R.string.PlusSettingsExteraInfo)));
+        items.add(SettingCell.Factory.of(PLUS_ID_AYU, 0xFF8E7BFF, 0xFF6A57E8, R.drawable.plus_settings_ayu, getString(R.string.PlusSettingsAyu), getString(R.string.PlusSettingsAyuInfo)));
+        items.add(SettingCell.Factory.of(PLUS_ID_PLUS, 0xFF6FE6BC, 0xFF1E9E74, R.drawable.plus_settings_plus, getString(R.string.PlusSettingsPlus), getString(R.string.PlusSettingsPlusInfo)));
+        items.add(UItem.asShadow(null));
 
         items.add(SettingCell.Factory.of(1, IconBackgroundColors.BLUE.top, IconBackgroundColors.BLUE.bottom, R.drawable.settings_account, getString(R.string.SettingsAccount), getString(R.string.SettingsAccountInfo)));
         items.add(SettingCell.Factory.of(2, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_chat, getString(R.string.SettingsChat), getString(R.string.SettingsChatInfo)));
@@ -817,6 +839,15 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             return;
         }
         switch (item.id) {
+            case PLUS_ID_EXTERA:
+                presentSettingFragment(new com.plusgram.messenger.ui.ExteraSettingsActivity());
+                break;
+            case PLUS_ID_AYU:
+                presentSettingFragment(new com.plusgram.messenger.ui.AyuSettingsActivity());
+                break;
+            case PLUS_ID_PLUS:
+                presentSettingFragment(new com.plusgram.messenger.ui.PlusSettingsActivity());
+                break;
             case 1:
                 presentSettingFragment(new UserInfoActivity());
                 break;
@@ -948,7 +979,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                     }
                     break;
             }
-            return formatString(R.string.TelegramVersion, String.format(Locale.US, "v%s (%d)\n%s", pInfo.versionName, code, abi));
+            return "PlusGram " + com.plusgram.messenger.PlusConfig.getVersion() + "\n" + formatString(R.string.TelegramVersion, String.format(Locale.US, "v%s (%d)\n%s", pInfo.versionName, code, abi));
         } catch (Exception e) {
             FileLog.e(e);
         }

@@ -1262,6 +1262,8 @@ public class ChatActivity extends BaseFragment implements
     public final static int OPTION_VIEW_STATISTICS = 115;
     public final static int OPTION_WELCOME_REVERT = 116;
     public final static int OPTION_SEND_MONEY = 117;
+    // PlusGram
+    public final static int OPTION_PLUS_EDIT_HISTORY = 900;
 
     private final static int[] allowedNotificationsDuringChatListAnimations = new int[]{
             NotificationCenter.messagesRead,
@@ -1702,6 +1704,9 @@ public class ChatActivity extends BaseFragment implements
     private final static int charge_fee = 72;
 
     private final static int chat_menu_topic_create = 73;
+
+    // PlusGram
+    private final static int plus_timezone = 90;
 
     private final static int id_chat_compose_panel = 1000;
 
@@ -2972,6 +2977,7 @@ public class ChatActivity extends BaseFragment implements
             .add(NotificationCenter.didLoadSendAsPeers)
             .add(NotificationCenter.closeChatActivity)
             .add(NotificationCenter.messagesDeleted)
+            .add(NotificationCenter.plusMessagesUpdated)
             .add(NotificationCenter.historyCleared)
             .add(NotificationCenter.messageReceivedByServer)
             .add(NotificationCenter.messageReceivedByAck)
@@ -3942,6 +3948,10 @@ public class ChatActivity extends BaseFragment implements
                     } catch (Exception e) {
                         FileLog.e(e);
                     }
+                } else if (id == plus_timezone) {
+                    if (currentUser != null) {
+                        com.plusgram.messenger.ui.PlusTimezonePicker.show(ChatActivity.this, currentUser.id, null);
+                    }
                 } else if (id == boost_group) {
                     if (ChatObject.hasAdminRights(currentChat)) {
                         BoostsActivity boostsActivity = new BoostsActivity(dialog_id);
@@ -4487,6 +4497,10 @@ public class ChatActivity extends BaseFragment implements
             }
             if (currentUser != null && currentUser.self && getDialogId() != UserObject.VERIFY) {
                 headerItem.lazilyAddSubItem(add_shortcut, R.drawable.msg_home, LocaleController.getString(R.string.AddShortcut));
+            }
+            // PlusGram: dual time - choose the peer's time zone
+            if (currentUser != null && !currentUser.self && !currentUser.bot && !UserObject.isService(currentUser.id) && currentEncryptedChat == null && chatMode == 0) {
+                headerItem.lazilyAddSubItem(plus_timezone, R.drawable.msg_language, LocaleController.getString(R.string.PlusPeerTimezone));
             }
             if (!isTopic && !ChatObject.isMonoForum(currentChat)) {
                 clearHistoryItem = headerItem.lazilyAddSubItem(clear_history, R.drawable.msg_clear,
@@ -6719,7 +6733,7 @@ public class ChatActivity extends BaseFragment implements
                 if (!foundTopView) {
                     scrolled = super.scrollVerticallyBy(dy, recycler, state);
                 }
-                final boolean allowPullingDownScroll = !isInPollAddOptionMode() && !hasSelectedMessages();
+                final boolean allowPullingDownScroll = !isInPollAddOptionMode() && !hasSelectedMessages() && !com.plusgram.messenger.extera.ExteraConfig.disableJumpToNextChannel;
                 if (allowPullingDownScroll && dy > 0 && scrolled == 0 && (ChatObject.isChannel(currentChat) && !currentChat.megagroup || isTopic && !UserObject.isBotForum(currentUser)) && chatMode != MODE_SAVED && chatMode != MODE_WELCOME_MESSAGES && chatMode != MODE_SCHEDULED && chatListView.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING && !chatListView.isFastScrollAnimationRunning() && !chatListView.isMultiselect() && !isReport()) {
                     if (pullingDownOffset == 0 && pullingDownDrawable != null) {
                         if (nextChannels != null && !nextChannels.isEmpty()) {
@@ -6856,6 +6870,10 @@ public class ChatActivity extends BaseFragment implements
                         wasManualScroll = true;
                         scrollingChatListView = true;
                     } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                        // PlusGram: exteraGram "hide keyboard on scroll"
+                        if (com.plusgram.messenger.extera.ExteraConfig.hideKeyboardOnScroll && getParentActivity() != null && chatActivityEnterView != null && chatActivityEnterView.isKeyboardVisible() && !chatActivityEnterView.isPopupShowing()) {
+                            AndroidUtilities.hideKeyboard(getParentActivity().getCurrentFocus());
+                        }
                         pollHintCell = null;
                         wasManualScroll = true;
                         scrollingFloatingDate = true;
@@ -22378,6 +22396,9 @@ public class ChatActivity extends BaseFragment implements
             if (updated && chatAdapter != null) {
                 chatAdapter.notifyDataSetChanged(false);
             }
+        } else if (id == NotificationCenter.plusMessagesUpdated) {
+            // PlusGram: deleted/edited marks, time format or peer time zone changed
+            updateVisibleRows(messageObject -> messageObject != null);
         } else if (id == NotificationCenter.messagesDeleted) {
             boolean scheduled = (Boolean) args[2];
             if (scheduled != (chatMode == MODE_SCHEDULED)) {
@@ -33425,6 +33446,10 @@ public class ChatActivity extends BaseFragment implements
         }
         boolean preserveDim = false;
         switch (option) {
+            case OPTION_PLUS_EDIT_HISTORY: {
+                com.plusgram.messenger.ui.PlusEditHistory.show(this, selectedObject);
+                break;
+            }
             case OPTION_RETRY: {
                 final MessageObject object = selectedObject;
                 final MessageObject.GroupedMessages group = selectedObjectGroup;
@@ -46123,6 +46148,12 @@ public class ChatActivity extends BaseFragment implements
                     items.add(LocaleController.getString(R.string.CopyLink));
                     options.add(OPTION_COPY_LINK);
                     icons.add(R.drawable.msg_link);
+                }
+                // PlusGram: AyuGram edit history
+                if (chatMode != MODE_SCHEDULED && com.plusgram.messenger.ayu.AyuMessages.getInstance().hasEditHistory(currentAccount, selectedObject)) {
+                    items.add(LocaleController.getString(R.string.AyuEditHistory));
+                    options.add(OPTION_PLUS_EDIT_HISTORY);
+                    icons.add(R.drawable.msg_recent);
                 }
                 if (selectedObject != null && selectedObject.messageOwner != null && selectedObject.messageOwner.action == null && currentChat != null && currentChat.forum && !isTopic && selectedObject.messageOwner != null && selectedObject.messageOwner.reply_to != null && selectedObject.messageOwner.reply_to.forum_topic) {
                     items.add(LocaleController.getString(R.string.ViewInTopic));

@@ -18475,7 +18475,8 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 }
                 timeString = LocaleController.formatPmEditedDate(editDate);
             } else {
-                timeString = (getString(R.string.EditedMessage) + " " + LocaleController.getInstance().getFormatterDay().format((long) (messageObject.messageOwner.date) * 1000));
+                // PlusGram: seconds / peer time zone
+                timeString = (getString(R.string.EditedMessage) + " " + com.plusgram.messenger.PlusTime.formatMessageTime(currentAccount, messageObject, messageObject.messageOwner.date));
             }
         } else if (currentMessageObject.isSaved && currentMessageObject.messageOwner.fwd_from != null && (currentMessageObject.messageOwner.fwd_from.date != 0 || currentMessageObject.messageOwner.fwd_from.saved_date != 0)) {
             int date = currentMessageObject.messageOwner.fwd_from.saved_date;
@@ -18484,10 +18485,19 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             }
             timeString = LocaleController.formatSeenDate(date);
         } else {
-            timeString = LocaleController.getInstance().getFormatterDay().format((long) (messageObject.messageOwner.date) * 1000);
+            // PlusGram: seconds / peer time zone ("19:55 / 15:55")
+            timeString = com.plusgram.messenger.PlusTime.formatMessageTime(currentAccount, messageObject, messageObject.messageOwner.date);
         }
         if (currentMessageObject.messageOwner.video_processing_pending) {
             timeString = formatString(R.string.ScheduledTimeApprox, timeString);
+        }
+        // PlusGram: exteraGram "hide time on stickers"
+        if (com.plusgram.messenger.extera.ExteraConfig.hideStickerTime && !currentMessageObject.scheduled && currentMessageObject.isAnyKindOfSticker()) {
+            timeString = "";
+        }
+        // PlusGram: AyuGram mark for deleted messages
+        if (com.plusgram.messenger.ayu.AyuMessages.getInstance().isDeleted(currentAccount, currentMessageObject)) {
+            timeString = TextUtils.isEmpty(timeString) ? com.plusgram.messenger.ayu.AyuConfig.deletedMark : com.plusgram.messenger.ayu.AyuConfig.deletedMark + " " + timeString;
         }
         if (signString != null) {
             if (messageObject.messageOwner.via_business_bot_id != 0) {

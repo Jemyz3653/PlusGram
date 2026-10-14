@@ -37,6 +37,8 @@ public class NotificationCenter {
 
     public static final int didReceiveNewMessages = totalEvents++;
     public static final int updateInterfaces = totalEvents++;
+    // PlusGram: deleted/edited marks or peer time zones changed, redraw chat cells
+    public static final int plusMessagesUpdated = totalEvents++;
     public static final int dialogsNeedReload = totalEvents++;
     public static final int closeChats = totalEvents++;
     public static final int closeChatActivity = totalEvents++;

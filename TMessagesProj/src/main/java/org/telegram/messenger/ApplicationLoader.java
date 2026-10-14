@@ -323,6 +323,14 @@ public class ApplicationLoader extends Application {
             applicationContext = getApplicationContext();
         }
 
+        // PlusGram: load our settings before anything reads them
+        try {
+            com.plusgram.messenger.PlusConfig.load();
+            com.plusgram.messenger.PlusConfig.applyFirstLaunchDefaults();
+        } catch (Throwable e) {
+            FileLog.e(e);
+        }
+
         NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
 
         try {

@@ -655,6 +655,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private int infoEndRowEmpty;
     private int phoneRow;
     private int noteRow;
+    private int plusIdRow; // PlusGram: exteraGram "show ID"
     private int locationRow;
     private int userInfoRow;
     private int channelInfoRow;
@@ -7405,6 +7406,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
             }
             return true;
+        } else if (position == plusIdRow) {
+            // PlusGram: copy user ID
+            AndroidUtilities.addToClipboard(String.valueOf(userId));
+            BulletinFactory.of(this).createCopyBulletin(LocaleController.getString(R.string.PlusCopied), resourcesProvider).show();
+            return true;
         } else if (position == noteRow) {
 
         } else if (position == phoneRow || position == numberRow) {
@@ -10521,6 +10527,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         infoEndRowEmpty = -1;
         phoneRow = -1;
         noteRow = -1;
+        plusIdRow = -1;
         userInfoRow = -1;
         locationRow = -1;
         channelInfoRow = -1;
@@ -10730,6 +10737,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     if (userInfo.note != null) {
                         noteRow = rowCount++;
                     }
+                }
+                // PlusGram: exteraGram "show ID in profiles"
+                if (com.plusgram.messenger.extera.ExteraConfig.showIdInProfile && userId != 0) {
+                    plusIdRow = rowCount++;
                 }
                 if (actionsView == null && userId != getUserConfig().getClientUserId()) {
                     notificationsRow = rowCount++;
@@ -13506,6 +13517,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         }
                         isFragmentPhoneNumber = phoneNumber != null && phoneNumber.matches("888\\d{8}");
                         detailCell.setTextAndValue(text, LocaleController.getString(isFragmentPhoneNumber ? R.string.AnonymousNumber : R.string.PhoneMobile), false);
+                    } else if (position == plusIdRow) {
+                        // PlusGram: user ID, tap to copy
+                        detailCell.setTextAndValue(String.valueOf(userId), "ID", false);
                     } else if (position == noteRow) {
                         final TLRPC.UserFull userInfo = getMessagesController().getUserFull(userId);
                         if (userInfo == null) return;
@@ -14321,7 +14335,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (position == infoHeaderRow || position == membersHeaderRow || position == settingsSectionRow2 ||
                     position == numberSectionRow || position == helpHeaderRow || position == debugHeaderRow || position == botPermissionsHeader) {
                 return VIEW_TYPE_HEADER;
-            } else if (position == phoneRow || position == locationRow || position == numberRow || position == birthdayRow) {
+            } else if (position == phoneRow || position == locationRow || position == numberRow || position == birthdayRow || position == plusIdRow) {
                 return VIEW_TYPE_TEXT_DETAIL;
             } else if (position == usernameRow || position == setUsernameRow) {
                 return VIEW_TYPE_TEXT_DETAIL_MULTILINE;
@@ -15721,6 +15735,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             put(++pointer, infoEndRowEmpty, sparseIntArray);
             put(++pointer, phoneRow, sparseIntArray);
             put(++pointer, noteRow, sparseIntArray);
+            put(++pointer, plusIdRow, sparseIntArray);
             put(++pointer, locationRow, sparseIntArray);
             put(++pointer, userInfoRow, sparseIntArray);
             put(++pointer, channelInfoRow, sparseIntArray);

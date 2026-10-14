@@ -19492,6 +19492,9 @@ public class MessagesController extends BaseController implements NotificationCe
 
                 MessageObject.getDialogId(message);
 
+                // PlusGram: AyuGram edit history, read the old version before it is overwritten
+                com.plusgram.messenger.ayu.AyuMessages.getInstance().onMessageEdited(currentAccount, message);
+
                 ConcurrentHashMap<Long, Integer> read_max = message.out ? dialogs_read_outbox_max : dialogs_read_inbox_max;
                 Integer value = read_max.get(message.dialog_id);
                 if (value == null) {
@@ -21038,6 +21041,8 @@ public class MessagesController extends BaseController implements NotificationCe
             }
         });
 
+        // PlusGram: AyuGram keeps deleted messages instead of removing them
+        deletedMessages = com.plusgram.messenger.ayu.AyuMessages.getInstance().onMessagesDeleted(currentAccount, deletedMessages);
         LongSparseIntArray markAsReadMessagesInboxFinal = markAsReadMessagesInbox;
         LongSparseIntArray markAsReadMessagesOutboxFinal = markAsReadMessagesOutbox;
         LongSparseArray<ArrayList<Integer>> markContentAsReadMessagesFinal = markContentAsReadMessages;
@@ -21652,6 +21657,10 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public SponsoredMessagesInfo getSponsoredMessages(long dialogId) {
+        // PlusGram: AyuGram option to hide sponsored messages
+        if (com.plusgram.messenger.ayu.AyuConfig.hideSponsoredMessages) {
+            return null;
+        }
         SponsoredMessagesInfo info = sponsoredMessages.get(dialogId);
         if (info != null && (info.loading || Math.abs(SystemClock.elapsedRealtime() - info.loadTime) <= 5 * 60 * 1000)) {
             return info;

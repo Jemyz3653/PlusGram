@@ -395,7 +395,12 @@ public class ConnectionsManager extends BaseController {
         return requestToken;
     }
 
-    private void sendRequestInternal(TLObject object, RequestDelegate onComplete, RequestDelegateTimestamp onCompleteTimestamp, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket, int flags, int datacenterId, int connectionType, boolean immediate, int requestToken) {
+    private void sendRequestInternal(TLObject object, RequestDelegate onCompleteOrig, RequestDelegateTimestamp onCompleteTimestamp, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket, int flags, int datacenterId, int connectionType, boolean immediate, int requestToken) {
+        // PlusGram: AyuGram ghost mode request hook
+        if (com.plusgram.messenger.ayu.AyuGhost.intercept(object, onCompleteOrig, onCompleteTimestamp)) {
+            return;
+        }
+        final RequestDelegate onComplete = com.plusgram.messenger.ayu.AyuGhost.wrap(currentAccount, object, onCompleteOrig);
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("send request " + object + " with token = " + requestToken);
         }

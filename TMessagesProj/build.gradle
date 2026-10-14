@@ -142,6 +142,27 @@ android {
 
         multiDexEnabled true
 
+        // PlusGram: api keys come from env or local.properties, never from git
+        buildConfigField "int", "PLUS_API_ID", plusProp("PLUS_API_ID", "0")
+        buildConfigField "String", "PLUS_API_HASH", "\"" + plusProp("PLUS_API_HASH", "") + "\""
+        buildConfigField "String", "PLUS_VERSION", "\"" + PLUS_VERSION_NAME + "\""
+
+        // PlusGram: ccache for the native part on CI (PLUS_CCACHE=1)
+        if (System.getenv("PLUS_CCACHE") != null) {
+            externalNativeBuild {
+                cmake {
+                    arguments '-DCMAKE_C_COMPILER_LAUNCHER=ccache', '-DCMAKE_CXX_COMPILER_LAUNCHER=ccache'
+                }
+            }
+        }
+
+        // PlusGram: build native code only for the ABIs we ship (-PPLUS_ABIS=arm64-v8a)
+        if (project.hasProperty("PLUS_ABIS")) {
+            ndk {
+                abiFilters.addAll(project.property("PLUS_ABIS").toString().split(","))
+            }
+        }
+
         externalNativeBuild {
             cmake {
                 version '3.22.1'
@@ -234,6 +255,22 @@ android {
     namespace 'org.telegram.messenger'
 }
 
+
+def plusProp(String name, String fallback) {
+    def env = System.getenv(name)
+    if (env != null && !env.trim().isEmpty()) {
+        return env.trim()
+    }
+    def value = getProps(name)
+    if (value != null && !value.toString().trim().isEmpty()) {
+        return value.toString().trim()
+    }
+    if (project.hasProperty(name)) {
+        return project.property(name).toString()
+    }
+    logger.warn("PlusGram: ${name} is not set, the app will not be able to log in. Put it into local.properties or env.")
+    return fallback
+}
 
 def getProps(String propName) {
     def propsFile = rootProject.file('local.properties')

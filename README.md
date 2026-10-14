@@ -1,46 +1,80 @@
-## Telegram messenger for Android
+# PlusGram
 
-[Telegram](https://telegram.org) is a messaging app with a focus on speed and security. It’s superfast, simple and free.
-This repo contains the official source code for [Telegram App for Android](https://play.google.com/store/apps/details?id=org.telegram.messenger).
+Неофициальный клиент Telegram для Android мятного цвета. Основа — официальный исходный код Telegram для Android 13.0.2, поверх него перенесены фишки exteraGram и AyuGram и добавлены свои.
 
-## Creating your Telegram Application
+*Unofficial Telegram client for Android, based on the official Telegram for Android 13.x sources, with features ported from exteraGram and AyuGram.*
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+## Что внутри
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+В настройках сверху три раздела, по порядку: **exteraGram → AyuGram → PlusGram**.
 
-### API, Protocol documentation
+**exteraGram**
+- скрывать клавиатуру при прокрутке чата
+- не переходить к следующему каналу свайпом
+- секунды во времени сообщений, скрытие времени у стикеров
+- скрыть свой номер в настройках, ID в профилях (тап — копировать)
+- числа без округления (12 345 вместо 12.3K)
+- ускорение загрузки и отправки файлов
 
-Telegram API manuals: https://core.telegram.org/api
+**AyuGram**
+- режим призрака: без отметок о прочтении, статуса «в сети», «печатает» и просмотров историй — включается одним переключателем или по отдельности
+- «читать чат после своего сообщения»
+- сохранение удалённых сообщений (остаются в чате с меткой 🗑, плюс отдельный список)
+- история изменений сообщений (в меню сообщения)
+- скрытие рекламы в каналах
 
-MTproto protocol manuals: https://core.telegram.org/mtproto
+**PlusGram**
+- двойное время: в сообщениях сначала твоё время, потом время собеседника — `19:55 / 15:55`. Пояс задаётся в личном чате (⋮ → «Часовой пояс собеседника») или берётся из бизнес-часов собеседника
+- мятная тема по умолчанию во всех встроенных темах
+- облегчённый режим: выключает тяжёлые анимации одним переключателем
+- своя иконка, отдельный package (`com.plusgram.messenger`) — ставится рядом с официальным Telegram
 
-### Compilation Guide
+## Сборка
 
-**Note**: In order to support [reproducible builds](https://core.telegram.org/reproducible-builds), this repo contains dummy release.keystore,  google-services.json and filled variables inside BuildVars.java. Before publishing your own APKs please make sure to replace all these files with your own.
+APK собирает GitHub Actions (`.github/workflows/build.yml`) — вкладка **Actions** → последний запуск → артефакт `PlusGram-…`. По умолчанию собирается только `arm64-v8a`; другие ABI можно выбрать при ручном запуске.
 
-You will require Android Studio 2025.1.4, Android NDK 27.2.12479018 and Android SDK 36.
+Секреты репозитория (Settings → Secrets and variables → Actions):
 
-1. Clone the Telegram source code with its submodules:
-   ```bash
-   git clone --recursive --shallow-submodules https://github.com/DrKLO/Telegram.git Telegram
-   ```
-   In case you forgot the `--recursive` flag, change to the `Telegram` directory and run:
-   ```bash
-   git submodule init && git submodule update --init --recursive --depth=1
-   ```
-2. Copy your release.keystore into TMessagesProj/config
-3. Fill out RELEASE_KEY_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_STORE_PASSWORD in gradle.properties to access your  release.keystore
-4.  Go to https://console.firebase.google.com/, create two android apps with application IDs org.telegram.messenger and org.telegram.messenger.beta, turn on firebase messaging and download google-services.json, which should be copied to the same folder as TMessagesProj.
-5. Open the project in the Studio (note that it should be opened, NOT imported).
-6. Fill out values in TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java – there’s a link for each of the variables showing where and which data to obtain.
-7. You are ready to compile Telegram.
+| Секрет | Зачем |
+|---|---|
+| `PLUS_API_ID`, `PLUS_API_HASH` | свои ключи с [my.telegram.org](https://my.telegram.org) — без них вход не работает |
+| `PLUS_KEYSTORE_BASE64`, `PLUS_KEYSTORE_PASSWORD`, `PLUS_KEY_ALIAS`, `PLUS_KEY_PASSWORD` | своя подпись APK. Без них используется публичный тестовый ключ из исходников Telegram |
 
-### Localization
+Локально (Android Studio, NDK 27.2.12479018, SDK 36):
 
-We moved all translations to https://translations.telegram.org/en/android/. Please use it.
+```bash
+git clone --recursive https://github.com/Jemyz3653/PlusGram.git
+```
+
+В `local.properties` добавь `PLUS_API_ID=...` и `PLUS_API_HASH=...`, затем `./gradlew :TMessagesProj_App:assembleAfatRelease -PPLUS_ABIS=arm64-v8a`.
+
+Свой ключ подписи создаётся так:
+
+```bash
+keytool -genkeypair -v -keystore plusgram.keystore -alias plusgram -keyalg RSA -keysize 4096 -validity 10000
+base64 -w0 plusgram.keystore   # это значение -> секрет PLUS_KEYSTORE_BASE64
+```
+
+## Ограничения
+
+- Пуш-уведомления через Firebase принадлежат официальному приложению, поэтому PlusGram держит фоновое соединение (включено по умолчанию в «Уведомления → Фоновое соединение»).
+- Карты Google в геопозиции могут не грузиться — ключ Maps привязан к официальному приложению.
+- Режим призрака и сохранение удалённых сообщений противоречат правилам Telegram API для клиентов. Используй свои `api_id`/`api_hash`, на свой риск.
+
+## Обновление до новой версии Telegram
+
+```bash
+git remote add upstream https://github.com/DrKLO/Telegram.git
+git fetch upstream --depth=50
+git merge upstream/master
+```
+
+Все правки PlusGram в коде Telegram помечены комментарием `// PlusGram`, свой код лежит в `TMessagesProj/src/main/java/com/plusgram/`.
+
+## Благодарности и лицензия
+
+- [Telegram for Android](https://github.com/DrKLO/Telegram) — GPL-2.0
+- [exteraGram](https://github.com/exteraSquad/exteraGram) — идеи и настройки раздела exteraGram
+- [AyuGram](https://github.com/AyuGram/AyuGram4A) от Radolyn Labs — режим призрака и сохранение сообщений
+
+PlusGram распространяется под GPL-2.0 (см. `LICENSE`).
