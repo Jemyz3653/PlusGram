@@ -147,4 +147,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/*.apk --title "PlusGram ${GITHUB_REF_NAME}" --generate-notes
+        run: |
+          extra=""
+          case "$GITHUB_REF_NAME" in *-*) extra="--prerelease";; esac
+          notes="PlusGram ${GITHUB_REF_NAME}"
+          [ -z "$PLUS_API_ID" ] && notes="$notes - preview build without api keys: the app opens, but login does not work."
+          gh release create "${GITHUB_REF_NAME}" dist/*.apk --title "PlusGram ${GITHUB_REF_NAME}" --notes "$notes" $extra
