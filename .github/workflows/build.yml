@@ -152,4 +152,9 @@ jobs:
           case "$GITHUB_REF_NAME" in *-*) extra="--prerelease";; esac
           notes="PlusGram ${GITHUB_REF_NAME}"
           [ -z "$PLUS_API_ID" ] && notes="$notes - preview build without api keys: the app opens, but login does not work."
-          gh release create "${GITHUB_REF_NAME}" dist/*.apk --title "PlusGram ${GITHUB_REF_NAME}" --notes "$notes" $extra
+          # release may already exist when it was created from the GitHub website
+          if gh release view "${GITHUB_REF_NAME}" > /dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" dist/*.apk --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" dist/*.apk --title "PlusGram ${GITHUB_REF_NAME}" --notes "$notes" $extra
+          fi
