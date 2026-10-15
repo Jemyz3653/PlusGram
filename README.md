@@ -38,7 +38,7 @@ APK собирает GitHub Actions (`.github/workflows/build.yml`) — вкла
 | Секрет | Зачем |
 |---|---|
 | `PLUS_API_ID`, `PLUS_API_HASH` | свои ключи с [my.telegram.org](https://my.telegram.org) — без них вход не работает |
-| `PLUS_KEYSTORE_BASE64`, `PLUS_KEYSTORE_PASSWORD`, `PLUS_KEY_ALIAS`, `PLUS_KEY_PASSWORD` | своя подпись APK. Без них используется публичный тестовый ключ из исходников Telegram |
+| `PLUS_KEYSTORE_BASE64`, `PLUS_KEYSTORE_PASSWORD` | своя подпись APK (PKCS12, алиас `plusgram`; если алиас другой — добавь `PLUS_KEY_ALIAS` и `PLUS_KEY_PASSWORD`). Без них используется публичный тестовый ключ из исходников Telegram |
 
 Локально (Android Studio, NDK 27.2.12479018, SDK 36):
 
@@ -51,7 +51,7 @@ git clone --recursive https://github.com/Jemyz3653/PlusGram.git
 Свой ключ подписи создаётся так:
 
 ```bash
-keytool -genkeypair -v -keystore plusgram.keystore -alias plusgram -keyalg RSA -keysize 4096 -validity 10000
+keytool -genkeypair -v -keystore plusgram.keystore -storetype PKCS12 -alias plusgram -keyalg RSA -keysize 4096 -validity 10000
 base64 -w0 plusgram.keystore   # это значение -> секрет PLUS_KEYSTORE_BASE64
 ```
 

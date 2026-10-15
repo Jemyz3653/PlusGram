@@ -133,6 +133,10 @@ public class PlusSettingsActivity extends UniversalFragment {
         } else {
             int backup = prefs.getInt(LITE_BACKUP_KEY, LiteMode.PRESET_HIGH);
             LiteMode.setAllFlags(backup);
+            // LiteMode.setAllFlags does not notify; redraw what got turned back on
+            org.telegram.ui.Components.AnimatedEmojiDrawable.updateAll();
+            org.telegram.messenger.SvgHelper.SvgDrawable.updateLiteValues();
+            Theme.reloadWallpaper(true);
         }
         PlusConfig.setLightMode(enabled);
     }
