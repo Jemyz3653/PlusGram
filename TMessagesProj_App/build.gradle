@@ -140,7 +140,12 @@ android {
         }
         afat {
             ndk {
-                abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+                // PlusGram: -PPLUS_ABIS=arm64-v8a keeps only the ABIs we ship
+                if (project.hasProperty("PLUS_ABIS")) {
+                    abiFilters.addAll(project.property("PLUS_ABIS").toString().split(","))
+                } else {
+                    abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+                }
             }
             sourceSets.debug {
                 manifest.srcFile '../TMessagesProj/config/debug/AndroidManifest_SDK23.xml'
